@@ -1,0 +1,139 @@
+Parameters:
+  SSHLocation:
+    Type: String
+    Default: 115.99.234.245/32
+  SSHKeyName:
+    Type: "AWS::EC2::KeyPair::KeyName"
+  InstanceSize:
+    Type: String
+    Default: "t2.micro"
+    AllowedValues: 
+      - "t2.small"
+      - "m4.large"
+      - "t2.micro"
+  Region:
+    Type: String
+    Default: "us-east-1"
+    AllowedValues:
+      - "us-east-1"
+      - "us-east-2"
+      - "us-west-1"
+  Testkey:
+    Type: String
+    Default: ""
+Mappings:
+  RegionMap:
+    "us-east-1":
+      "AMALINUX": "ami-8c1be5f6"
+    "us-east-2":
+      "AMALINUX": "ami-c5062ba0"
+    "us-west-1":
+      "AMALINUX": "ami-02eada62"    
+Resources:
+  EC2:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref InstanceSize
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMALINUX]
+      KeyName: !Ref SSHKeyName
+      UserData:
+        "Fn::Base64": 
+          !Sub |
+            #!/bin/bash
+            echo sdsd34334354354 >/tmp/a
+            echo anotherds >/tmp/b
+            echo dsdsdsfdsfdsf >/tmp/c
+            yum update -y aws-cfn-bootstrap # good practice - always do this.
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2 --configsets dheeraj_setup --region ${AWS::Region}             
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          dheeraj_setup:
+            - "configure_cfn"
+            - "setup_ansible"
+        configure_cfn:
+          files:
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              group: root
+              owner: root
+              mode: 000711
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.EC2.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2 --region ${AWS::Region}   
+            /etc/cfn/cfn-hup.conf:
+              owner: root
+              group: root
+              mode: 000711 
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+                verbose=true
+                interval=5  
+            /tmp/c:
+              content:
+                dfsfdsfdsfdsfs               
+          services:
+            sysvinit:
+              cfn-hup:
+                enaled: "true"
+                ensureRunning: "true"
+                files: 
+                  - "/etc/cfn/cfn-hup.conf"
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"                    
+        setup_ansible:
+          packages:
+            yum: 
+              mysql: []
+              httpd: []
+          services:
+            sysvinit:
+              httpd:
+                enabled: "true"   
+                ensureRunning: "true"
+          commands:
+            install_ansible:
+              command: |
+                cd ~
+                yum install git -y
+                mkdir p1
+                git clone git://github.com/ansible/ansible.git --recursive
+                cd ansible/
+                source ./hacking/env-setup
+                echo "source ~/ansible/hacking/env-setup" >> ~/.bashrc
+                easy_install pip
+                mkdir /etc/ansible
+                cp ~/ansible/contrib/inventory/ec2.* /etc/ansible/
+                cp ~/ansible/examples/ansible.cfg /etc/ansible/
+                cd /etc/ansible/
+                mv ec2.py hosts   
+                mkdir p2
+    CreationPolicy: 
+      ResourceSignal:
+        Count: 1
+        Timeout: PT15M
+      
+  SecurityGroup: 
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Test stack yaml based - ssh .....
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation
+Outputs: 
+  InstanceDetails: 
+    Description: "Something to be put here"
+    Value: !GetAtt EC2.PublicIp
+  SSHKeyNameHere: 
+    Description: Hey, this is the key name!!!!
+    Value: !Ref SSHKeyName
+
+          
+          
+          
+          
+          
