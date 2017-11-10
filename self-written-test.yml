@@ -113,8 +113,7 @@ Resources:
     CreationPolicy: 
       ResourceSignal:
         Count: 1
-        Timeout: PT15M
-      
+        Timeout: PT5M     
   SecurityGroup: 
     Type: "AWS::EC2::SecurityGroup"
     Properties:
@@ -131,6 +130,9 @@ Outputs:
   SSHKeyNameHere: 
     Description: Hey, this is the key name!!!!
     Value: !Ref SSHKeyName
+  InstanceType:
+    Description: Instance type
+    Value: !Ref InstanceSize
 
           
           
