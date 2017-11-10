@@ -45,7 +45,7 @@ Resources:
             echo dsdsdsfdsfdsf >/tmp/c
             yum update -y aws-cfn-bootstrap # good practice - always do this.
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2 --configsets dheeraj_setup --region ${AWS::Region}
-        /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --resource EC2 --stack-name ${AWS::StackName} --reason 'timeout?????? game over!!!!!!'
+            /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --resource EC2 --stack-name ${AWS::StackName} --reason 'timeout?????? game over!!!!!!'
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
