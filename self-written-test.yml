@@ -7,7 +7,7 @@ Parameters:
   InstanceSize:
     Type: String
     Default: "t2.micro"
-    AllowedValues: 
+    AllowedValues:
       - "t2.small"
       - "m4.large"
       - "t2.micro"
@@ -28,7 +28,7 @@ Mappings:
     "us-east-2":
       "AMALINUX": "ami-c5062ba0"
     "us-west-1":
-      "AMALINUX": "ami-02eada62"    
+      "AMALINUX": "ami-02eada62"
 Resources:
   EC2:
     Type: "AWS::EC2::Instance"
@@ -37,7 +37,7 @@ Resources:
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMALINUX]
       KeyName: !Ref SSHKeyName
       UserData:
-        "Fn::Base64": 
+        "Fn::Base64":
           !Sub |
             #!/bin/bash
             echo sdsd34334354354 >/tmp/a
@@ -62,37 +62,37 @@ Resources:
                 [cfn-auto-reloader-hook]
                 triggers=post.update
                 path=Resources.EC2.Metadata.AWS::CloudFormation::Init
-                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2 --region ${AWS::Region}   
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource EC2 --region ${AWS::Region}
             /etc/cfn/cfn-hup.conf:
               owner: root
               group: root
-              mode: 000711 
+              mode: 000711
               content: !Sub |
                 [main]
                 stack=${AWS::StackId}
                 region=${AWS::Region}
                 verbose=true
-                interval=5  
+                interval=5
             /tmp/c:
               content:
-                dfsfdsfdsfdsfs               
+                dfsfdsfdsfdsfs
           services:
             sysvinit:
               cfn-hup:
                 enaled: "true"
                 ensureRunning: "true"
-                files: 
+                files:
                   - "/etc/cfn/cfn-hup.conf"
-                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"                    
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
         setup_ansible:
           packages:
-            yum: 
+            yum:
               mysql: []
               httpd: []
           services:
             sysvinit:
               httpd:
-                enabled: "true"   
+                enabled: "true"
                 ensureRunning: "true"
           commands:
             install_ansible:
@@ -109,13 +109,13 @@ Resources:
                 cp ~/ansible/contrib/inventory/ec2.* /etc/ansible/
                 cp ~/ansible/examples/ansible.cfg /etc/ansible/
                 cd /etc/ansible/
-                mv ec2.py hosts   
+                mv ec2.py hosts
                 mkdir p2
-    CreationPolicy: 
+    CreationPolicy:
       ResourceSignal:
         Count: 1
-        Timeout: PT15M     
-  SecurityGroup: 
+        Timeout: PT15M
+  SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
       GroupDescription: Test stack yaml based - ssh .....
@@ -124,19 +124,13 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: !Ref SSHLocation
-Outputs: 
-  InstanceDetails: 
+Outputs:
+  InstanceDetails:
     Description: "Something to be put here"
     Value: !GetAtt EC2.PublicIp
-  SSHKeyNameHere: 
+  SSHKeyNameHere:
     Description: Hey, this is the key name!!!!
     Value: !Ref SSHKeyName
   InstanceType:
     Description: Instance type
     Value: !Ref InstanceSize
-
-          
-          
-          
-          
-          
