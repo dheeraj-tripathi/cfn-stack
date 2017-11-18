@@ -113,7 +113,7 @@ Resources:
                 mkdir p2
     CreationPolicy:
       ResourceSignal:
-        Count: 1
+        Count: "1"
         Timeout: PT15M
   SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
